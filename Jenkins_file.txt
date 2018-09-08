@@ -15,7 +15,8 @@ pipeline {
                 checkout scm
             }
         }
-          curl -i -uadmin:password -X POST "https://artprod.company.com/v2/promote" -H "Content-Type: application/json" -d '{"tagetRepo":"docker-prod","dockerRepository":"jfrog/windows"}'
+        curl -uadmin:password -T target/myweb.war http://localhost:8081/artifactory/snapshot-local/myweb.war
+ 
 
         stage('Deploy configs to QA Sandbox') {
             steps {
