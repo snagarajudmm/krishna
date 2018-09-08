@@ -1,0 +1,40 @@
+pipeline {
+    agent {
+        label 'mobility'
+    }
+    options {
+        ansiColor('xterm')
+    }
+    environment {
+        PATH = "/usr/bin/ant:$PATH"
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Checkout code'
+                checkout scm
+            }
+        }
+          curl -i -uadmin:password -X POST "https://artprod.company.com/v2/promote" -H "Content-Type: application/json" -d '{"tagetRepo":"docker-prod","dockerRepository":"jfrog/windows"}'
+
+        stage('Deploy configs to QA Sandbox') {
+            steps {
+                echo 'Deploying configurations to QA Sandbox' 
+                // sh '-lib lib/ant-salesforce.jar MyDeploy'
+                withDockerContainer(image: 'ashishbhatt12/ant:1.10', args: '-u root:sudo') {
+                    sh 'ant MyDeploy'
+                    //  sh 'ant -version'
+                }
+            }
+        }
+        stage('Validate deployment') {
+            steps {
+                echo 'Validating deployment'
+                withDockerContainer(image: 'ashishbhatt12/ant:1.10', args: '-u root:sudo') {
+                    sh 'ant deployCodeCheckOnly'
+                    // sh 'ant -version'
+                }
+            }
+        }   
+    }
+}
